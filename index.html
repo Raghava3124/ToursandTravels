@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Driving School Manager</title>
+    <title>Sri Rama Ganapathi Tours & Travels</title>
     <link
         href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Playfair+Display:ital,wght@0,700;1,700&display=swap"
         rel="stylesheet">
@@ -35,88 +35,142 @@
             min-height: 100vh;
         }
 
-        /* Bottom Panel UI */
-        .bottom-panel {
-            width: 100%;
+        /* Sidebar UI */
+        .sidebar {
+            width: 280px;
             background-color: var(--primary);
             color: white;
-            padding: 1.5rem 2.5rem;
+            padding: 4.5rem 1.5rem 2rem 1.5rem;
             display: flex;
-            justify-content: space-between;
-            align-items: center;
-            box-shadow: 0 -4px 25px rgba(0, 0, 0, 0.15);
-            z-index: 10;
+            flex-direction: column;
+            box-shadow: 4px 0 15px rgba(0, 0, 0, 0.1);
             position: fixed;
-            bottom: 0;
+            top: 0;
             left: 0;
-            gap: 2rem;
+            bottom: 0;
+            z-index: 10;
+            transform: translateX(-100%);
+            transition: transform 0.3s ease;
         }
 
-        .bottom-panel-info {
-            flex: 1;
+        .sidebar.mobile-open {
+            transform: translateX(0);
         }
 
-        .bottom-panel h1 {
+        .sidebar h1 {
             font-size: 1.4rem;
             margin-bottom: 0.5rem;
             font-weight: 600;
             letter-spacing: -0.5px;
+            line-height: 1.3;
         }
 
-        .bottom-panel p {
-            font-size: 0.95rem;
+        .sidebar p {
+            font-size: 0.9rem;
             color: #dbeafe;
-            margin: 0;
+            margin-bottom: 2rem;
             line-height: 1.4;
             opacity: 0.9;
+        }
+
+        .sidebar .action-buttons {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            flex: 1;
+            width: 100%;
         }
 
         .print-btn {
             background-color: #ffffff;
             color: var(--primary);
             border: none;
-            padding: 1rem 2.5rem;
+            padding: 1rem;
             border-radius: 10px;
-            font-size: 1.05rem;
+            font-size: 1rem;
             font-weight: 600;
             cursor: pointer;
             transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
             display: flex;
             align-items: center;
-            justify-content: center;
-            gap: 0.6rem;
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
-            white-space: nowrap;
+            justify-content: flex-start;
+            gap: 0.8rem;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            width: 100%;
         }
 
         .print-btn:hover {
             background-color: #f8fafc;
-            transform: translateY(-3px);
-            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+            transform: translateY(-2px);
         }
 
-        .print-btn:active {
-            transform: translateY(-1px);
+        .print-btn.calendar-btn {
+            background-color: #1e40af;
+            color: white;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .print-btn.calendar-btn:hover {
+            background-color: #1d4ed8;
         }
 
         .controls {
             font-size: 0.85rem;
             color: #93c5fd;
-            text-align: right;
+            text-align: left;
             line-height: 1.4;
-            border-left: 1px solid rgba(255, 255, 255, 0.1);
-            padding-left: 1.5rem;
-            white-space: nowrap;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            padding-top: 1.5rem;
+            margin-top: auto;
         }
 
         /* Main Workspace */
         .workspace {
+            margin-left: 0;
             flex: 1;
-            padding: 40px 40px 160px 40px;
+            padding: 20px 15px;
+            padding-top: 70px;
             overflow-y: auto;
+            overflow-x: auto;
             display: flex;
             justify-content: center;
             align-items: flex-start;
+        }
+
+        .hamburger {
+            display: flex;
+            position: fixed;
+            top: 15px;
+            left: 15px;
+            background: var(--primary);
+            color: white;
+            padding: 8px;
+            border-radius: 8px;
+            z-index: 20;
+            cursor: pointer;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+            align-items: center;
+            justify-content: center;
+        }
+
+        .mobile-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 5;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s;
+        }
+
+        .mobile-overlay.active {
+            display: block;
+            opacity: 1;
+            pointer-events: auto;
         }
 
         /* A4 Paper */
@@ -130,7 +184,8 @@
             position: relative;
             border-radius: 4px;
         }
-/*For testing*/
+
+        /*For testing*/
         .a4-page::before {
             content: '';
             position: absolute;
@@ -372,6 +427,7 @@
         }
 
         .status-avl {
+
             color: #16a34a;
             /* green */
         }
@@ -428,11 +484,14 @@
                 print-color-adjust: exact;
             }
 
-            .bottom-panel {
+            .sidebar,
+            .hamburger,
+            .mobile-overlay {
                 display: none !important;
             }
 
             .workspace {
+                margin-left: 0;
                 padding: 0;
                 display: block;
             }
@@ -555,22 +614,240 @@
         .modal-btn:hover {
             background: #2563eb;
         }
+
+        /* Calendar Modal */
+        .calendar-modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.4);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.2s ease;
+            backdrop-filter: blur(4px);
+        }
+
+        .calendar-modal-overlay.active {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .calendar-box {
+            background: white;
+            padding: 30px;
+            border-radius: 16px;
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+            width: 90%;
+            max-width: 650px;
+            transform: translateY(20px);
+            transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            display: flex;
+            flex-direction: column;
+        }
+
+        .calendar-modal-overlay.active .calendar-box {
+            transform: translateY(0);
+        }
+
+        .calendar-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .calendar-controls select {
+            padding: 10px 15px;
+            font-size: 15px;
+            border-radius: 8px;
+            border: 1px solid var(--border-color);
+            background: #f8fafc;
+            cursor: pointer;
+            font-weight: 600;
+            color: var(--text-dark);
+            outline: none;
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+        }
+
+        .calendar-nav {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .nav-btn {
+            background: #f1f5f9;
+            border: none;
+            font-size: 16px;
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            cursor: pointer;
+            color: var(--text-dark);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+        }
+
+        .nav-btn:hover {
+            background: #e2e8f0;
+            color: var(--primary);
+        }
+
+        .month-title {
+            font-size: 18px;
+            font-weight: 700;
+            min-width: 150px;
+            text-align: center;
+            color: var(--text-dark);
+        }
+
+        .calendar-grid {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 8px;
+        }
+
+        .calendar-day-header {
+            text-align: center;
+            font-weight: 700;
+            color: var(--text-gray);
+            font-size: 13px;
+            padding: 10px 0;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .calendar-day {
+            min-height: 80px;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            padding: 6px;
+            display: flex;
+            flex-direction: column;
+            background: darkgreen;
+            transition: border-color 0.2s;
+        }
+
+        .calendar-day:hover {
+            border-color: #cbd5e1;
+        }
+
+        .calendar-day.empty {
+            background: transparent;
+            border-color: transparent;
+            pointer-events: none;
+        }
+
+        .calendar-day .date-num {
+            font-size: 18px;
+            font-weight: 600;
+            color: black;
+            align-self: flex-end;
+            margin-bottom: 5px;
+        }
+
+        .calendar-day.today {
+            background: #8dd8e6;
+            border-color: #858b87;
+        }
+
+        .calendar-day.today .date-num {
+            background: var(--primary);
+            color: white;
+            width: 24px;
+            height: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+        }
+
+        .calendar-day.booked {
+            background: #a30c0c !important;
+            border-color: #dc2626 !important;
+        }
+
+        .calendar-day.booked .date-num {
+            color: rgba(255, 255, 255, 0.9);
+        }
+
+        .calendar-day.booked .booking-badge {
+            background: transparent;
+            color: white;
+            font-size: 14px;
+            padding: 2px 0 0 0;
+            box-shadow: none;
+        }
+
+        .booking-badge {
+            background: #fee2e2;
+            color: black;
+            font-size: 12px;
+            padding: 4px 6px;
+            border-radius: 4px;
+            font-weight: 900;
+            text-align: center;
+            margin-bottom: 4px;
+            line-height: 1.2;
+            overflow: hidden;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            line-clamp: 2;
+            -webkit-box-orient: vertical;
+            word-break: break-word;
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+        }
+
+        .close-calendar {
+            background: #f1f5f9;
+            color: #475569;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            align-self: flex-end;
+            margin-top: 20px;
+            transition: all 0.2s;
+        }
+
+        .close-calendar:hover {
+            background: #e2e8f0;
+            color: #1e293b;
+        }
     </style>
 </head>
 
 <body>
 
-    <!-- Bottom Panel UI -->
-    <div class="bottom-panel">
-        <div class="bottom-panel-info">
-            <h1>Driving School Manager</h1>
-            <p>Fill out the customer details on the A4 sheet, then click "Print". The blue borders and this panel will
-                be hidden on the printed paper.</p>
-        </div>
+    <!-- Mobile Hamburger and Overlay -->
+    <div class="hamburger" onclick="toggleSidebar()">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="3" y1="12" x2="21" y2="12"></line>
+            <line x1="3" y1="6" x2="21" y2="6"></line>
+            <line x1="3" y1="18" x2="21" y2="18"></line>
+        </svg>
+    </div>
+    <div class="mobile-overlay" id="mobile-overlay" onclick="toggleSidebar()"></div>
 
-        <div style="display: flex; gap: 10px; align-items: center;">
+    <!-- Sidebar UI -->
+    <div class="sidebar" id="sidebar">
+        <h1>Sri Rama Ganapathi Tours & Travels</h1>
+        <p>Fill out details on the A4 sheet. Click Print or Load an existing booking.</p>
+
+        <div class="action-buttons">
             <button class="print-btn" onclick="loadBill()">
-                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
                     stroke-linecap="round" stroke-linejoin="round">
                     <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
                     <polyline points="7 10 12 15 17 10"></polyline>
@@ -578,14 +855,43 @@
                 </svg>
                 Load Bill (Edit)
             </button>
-            <button class="print-btn" onclick="printAndSave()">
-                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+            <button class="print-btn calendar-btn" onclick="openCalendar()">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                    stroke-linecap="round" stroke-linejoin="round">
+                    <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                    <line x1="16" y1="2" x2="16" y2="6"></line>
+                    <line x1="8" y1="2" x2="8" y2="6"></line>
+                    <line x1="3" y1="10" x2="21" y2="10"></line>
+                </svg>
+                Car Calendar
+            </button>
+            <button class="print-btn" style="background:#2563eb; color:white; border-color:#1d4ed8;"
+                onclick="saveBooking()">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                    stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path>
+                    <polyline points="17 21 17 13 7 13 7 21"></polyline>
+                    <polyline points="7 3 7 8 15 8"></polyline>
+                </svg>
+                Save Booking
+            </button>
+            <button class="print-btn" onclick="printA4()">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
                     stroke-linecap="round" stroke-linejoin="round">
                     <polyline points="6 9 6 2 18 2 18 9"></polyline>
                     <path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path>
                     <rect x="6" y="14" width="12" height="8"></rect>
                 </svg>
-                Print & Save A4
+                Print A4
+            </button>
+            <button class="print-btn" style="background:#475569; color:white; border-color:#334155; margin-top:15px;"
+                onclick="window.location.reload()">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                    stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M21 12a9 9 0 1 1-9-9c2.52 0 4.93 1 6.74 2.74L21 8"></path>
+                    <polyline points="21 3 21 8 16 8"></polyline>
+                </svg>
+                New Bill (Clear)
             </button>
         </div>
 
@@ -626,7 +932,8 @@
 
             <div class="subtitle-row">
                 <div class="field-group">
-                    S NO: <input type="text" id="s-no" placeholder="xxxx" style="width: 100px;" />
+                    S NO: <input type="text" id="s-no" placeholder="Loading..."
+                        style="width: 100px; background: rgba(0,0,0,0.02);" readonly />
                 </div>
                 <div class="u-kothapalli">
                     U Kothapalli
@@ -718,7 +1025,7 @@
                 </div>
                 <div class="grid-2col" style="margin-top: 5px;">
                     <div class="form-row">
-                        <label>LATE FEE :</label>
+                        <label>LATE / EXTRA FEE :</label>
                         <input type="number" id="late-fee" oninput="calculateBalance()" />
                     </div>
                     <div class="form-row">
@@ -727,7 +1034,10 @@
                     </div>
                 </div>
                 <div class="grid-2col" style="margin-top: 5px;">
-                    <div class="form-row" style="visibility: hidden;"></div>
+                    <div class="form-row">
+                        <label>PAID AMOUNT :</label>
+                        <input type="number" id="paid-amount" oninput="calculateBalance()" />
+                    </div>
                     <div class="form-row">
                         <label>BALANCE :</label>
                         <input type="number" id="balance" readonly style="background: rgba(0,0,0,0.02);" />
@@ -738,11 +1048,51 @@
 
             <div style="display: flex; justify-content: flex-end; margin-top: 25px;">
                 <div class="signature">
-                    <div class="sig-line"></div>
+                    <div class="sig-line" style="position: relative; height: 50px;">
+                        <img src="signature.jpg" alt="Signature"
+                            style="position: absolute; bottom: 0px; left: 50%; transform: translateX(-50%); max-height: 48px; max-width: 140px; mix-blend-mode: multiply;"
+                            onerror="this.style.display='none'; this.parentElement.style.height='40px';" />
+                    </div>
                     <div>SIGNATURE</div>
                 </div>
             </div>
 
+        </div>
+    </div>
+
+
+    <!-- Calendar Modal Overlay -->
+    <div class="calendar-modal-overlay" id="calendar-modal">
+        <div class="calendar-box">
+            <div class="calendar-header">
+                <div class="calendar-controls">
+                    <select id="calendar-car-select" onchange="fetchCalendarData()">
+                        <option value="">-- Select a Car to View --</option>
+                        <option value="AP 39 CB 5806">AP 39 CB 5806</option>
+                        <option value="AP 39 WP 3536">AP 39 WP 3536</option>
+                    </select>
+                </div>
+                <div class="calendar-nav">
+                    <button class="nav-btn" onclick="changeMonth(-1)">&#10094;</button>
+                    <div class="month-title" id="calendar-month-title">Loading...</div>
+                    <button class="nav-btn" onclick="changeMonth(1)">&#10095;</button>
+                </div>
+            </div>
+
+            <div class="calendar-grid">
+                <div class="calendar-day-header">SUN</div>
+                <div class="calendar-day-header">MON</div>
+                <div class="calendar-day-header">TUE</div>
+                <div class="calendar-day-header">WED</div>
+                <div class="calendar-day-header">THU</div>
+                <div class="calendar-day-header">FRI</div>
+                <div class="calendar-day-header">SAT</div>
+            </div>
+            <div class="calendar-grid" id="calendar-grid-body">
+                <!-- Days injected via JS -->
+            </div>
+
+            <button class="close-calendar" onclick="closeCalendar()">Close & Return</button>
         </div>
     </div>
 
@@ -759,7 +1109,7 @@
             </div>
             <h3 class="modal-title">Attention</h3>
             <p class="modal-message" id="modal-msg">Please fill in the required field.</p>
-            <button class="modal-btn" onclick="closeModal()">OK</button>
+            <button class="modal-btn" id="modal-ok-btn" onclick="closeModal()">OK</button>
         </div>
     </div>
 
@@ -776,13 +1126,80 @@
             }
 
             if (billInput) {
-                const maxBill = parseInt(localStorage.getItem('ds_maxSNo')) || 1000;
-                billInput.value = maxBill + 1;
+                billInput.value = 'Loading...';
+                fetch(`${SCRIPT_URL}?action=get_max_sno&t=${new Date().getTime()}`)
+                    .then(r => r.json())
+                    .then(data => {
+                        if (typeof data.max_sno !== 'undefined') {
+                            const maxBill = parseInt(data.max_sno) || 0;
+                            billInput.value = maxBill + 1;
+                            localStorage.setItem('ds_maxSNo', maxBill);
+                        } else {
+                            console.warn("Backend didn't return max_sno.");
+                            // showModal('Warning: Please deploy the latest Google Apps Script code as a NEW VERSION. It did not return the max S No.');
+                            const maxBill = parseInt(localStorage.getItem('ds_maxSNo')) || 1000;
+                            billInput.value = maxBill + 1;
+                        }
+                    })
+                    .catch(err => {
+                        console.error("Error fetching max S No:", err);
+                        // showModal('Network Error: Could not fetch S No from Google Sheets. Using local fallback.');
+                        const maxBill = parseInt(localStorage.getItem('ds_maxSNo')) || 1000;
+                        billInput.value = maxBill + 1;
+                    });
             }
         };
 
-        function showModal(message, focusElementId = null) {
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            const overlay = document.getElementById('mobile-overlay');
+            if (sidebar && overlay) {
+                sidebar.classList.toggle('mobile-open');
+                overlay.classList.toggle('active');
+            }
+        }
+
+        function showModal(message, focusElementId = null, showOkButton = true, type = null) {
             document.getElementById('modal-msg').textContent = message;
+
+            const titleEl = document.querySelector('.modal-title');
+            const iconEl = document.querySelector('.modal-icon');
+            const okBtn = document.getElementById('modal-ok-btn');
+
+            if (!type) {
+                const msgLower = message.toLowerCase();
+                if (msgLower.includes('success')) type = 'success';
+                else if (msgLower.includes('wait') || msgLower.includes('loading') || msgLower.includes('saving')) type = 'loading';
+                else if (msgLower.includes('error') || msgLower.includes('failed') || msgLower.includes('not found') || msgLower.includes('please fill') || msgLower.includes('exactly')) type = 'error';
+                else type = 'info';
+            }
+
+            if (type === 'success') {
+                titleEl.textContent = 'Success';
+                iconEl.style.background = '#dcfce7';
+                iconEl.style.color = '#16a34a';
+                iconEl.innerHTML = '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"></polyline></svg>';
+            } else if (type === 'error') {
+                titleEl.textContent = 'Attention';
+                iconEl.style.background = '#fee2e2';
+                iconEl.style.color = '#ef4444';
+                iconEl.innerHTML = '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>';
+            } else if (type === 'loading') {
+                titleEl.textContent = 'Processing';
+                iconEl.style.background = '#e0e7ff';
+                iconEl.style.color = '#3b82f6';
+                iconEl.innerHTML = '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>';
+            } else {
+                titleEl.textContent = 'Information';
+                iconEl.style.background = '#e0e7ff';
+                iconEl.style.color = '#3b82f6';
+                iconEl.innerHTML = '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>';
+            }
+
+            if (okBtn) {
+                okBtn.style.display = showOkButton ? 'block' : 'none';
+            }
+
             document.getElementById('custom-modal').classList.add('active');
 
             // Store the element to focus on after closing
@@ -840,13 +1257,26 @@
                     options.forEach(opt => {
                         if (opt.value === "") return;
                         if (bookedCars[opt.value]) {
+                            const b = bookedCars[opt.value];
+                            const fromD = b.from.split('-');
+                            const toD = b.to.split('-');
+
+                            // Format to DD/MM (drop the year) for space efficiency
+                            const fFrom = fromD.length === 3 ? `${fromD[2]}/${fromD[1]}` : b.from;
+                            const fTo = toD.length === 3 ? `${toD[2]}/${toD[1]}` : b.to;
+
+                            // Truncate name if it's unexpectedly long
+                            const shortName = b.name.length > 12 ? b.name.substring(0, 10) + '..' : b.name;
+
                             opt.disabled = true;
                             opt.style.color = 'red';
-                            opt.text = `${opt.value} (Booked)`;
+                            opt.text = `${opt.value} (${shortName}: ${fFrom} to ${fTo})`;
+                            opt.title = `Booked by ${b.name} from ${b.from} to ${b.to}`; // Shows full on hover
                         } else {
                             opt.disabled = false;
                             opt.style.color = '';
                             opt.text = opt.value;
+                            opt.title = '';
                             availableCount++;
                         }
                     });
@@ -878,6 +1308,8 @@
             const sNo = prompt("Enter S No to edit/load:");
             if (!sNo || sNo.trim() === '') return;
 
+            showModal(`Loading bill S No: ${sNo}...\nPlease wait.`, null, false);
+
             try {
                 const response = await fetch(`${SCRIPT_URL}?action=get_bill&sNo=${sNo}`);
                 if (response.ok) {
@@ -899,16 +1331,17 @@
                         document.getElementById('petrol-points').value = bill.petrolPoints || '';
                         document.getElementById('amount').value = bill.amount || '';
                         document.getElementById('toll-fee').value = bill.tollFee || '';
-                        document.getElementById('late-fee').value = bill.lateFee || '';
+                        if (document.getElementById('late-fee')) document.getElementById('late-fee').value = bill.lateFee || '';
                         document.getElementById('advance').value = bill.advance || '';
+                        if (document.getElementById('paid-amount')) document.getElementById('paid-amount').value = bill.paid || '';
                         document.getElementById('balance').value = bill.balance || '';
-                        
+
                         showModal(`Loaded Bill S No: ${sNo} successfully.`);
                     } else {
                         showModal(`Bill S No: ${sNo} not found.`);
                     }
                 } else {
-                     showModal(`Failed to load bill.`);
+                    showModal(`Failed to load bill.`);
                 }
             } catch (err) {
                 console.error("Error fetching bill: ", err);
@@ -934,14 +1367,15 @@
             const toll = parseFloat(document.getElementById('toll-fee').value) || 0;
             const lateFee = parseFloat(document.getElementById('late-fee').value) || 0;
             const advance = parseFloat(document.getElementById('advance').value) || 0;
+            const paid = parseFloat(document.getElementById('paid-amount').value) || 0;
 
             const totalRequired = amount + toll + lateFee;
-            const balance = totalRequired - advance;
+            const balance = totalRequired - advance - paid;
 
             document.getElementById('balance').value = balance;
         }
 
-        async function printAndSave() {
+        async function saveBooking() {
             const requiredFields = [
                 { id: 'cust-name', name: 'NAME' },
                 { id: 'licence-no', name: 'LICENCE NUMBER' },
@@ -1014,11 +1448,13 @@
                     tollFee: document.getElementById('toll-fee').value || '',
                     lateFee: document.getElementById('late-fee') ? document.getElementById('late-fee').value : '',
                     advance: document.getElementById('advance').value || '',
+                    paid: document.getElementById('paid-amount') ? document.getElementById('paid-amount').value : '',
                     balance: document.getElementById('balance').value || ''
                 };
 
                 try {
                     // Send data securely directly to Google Sheets Web App Database!
+                    showModal("Saving to Google Sheets... Please wait.", null, false);
                     fetch(SCRIPT_URL, {
                         method: 'POST',
                         body: JSON.stringify(payload),
@@ -1026,23 +1462,157 @@
                             'Content-Type': 'text/plain;charset=utf-8' // Crucial to bypass CORS OPTIONS
                         }
                     }).then(async (res) => {
-                        if (!res.ok) {
+                        if (res.ok) {
+                            showModal(`Successfully saved S No ${currentSNo} to Google Sheets!`);
+                        } else {
                             let errData = {};
-                            try { errData = await res.json(); } catch(e){}
-                            showModal(errData.message || "Failed to save to CSV. Please check the backend.");
+                            try { errData = await res.json(); } catch (e) { }
+                            showModal(errData.message || "Failed to save to Sheets. Please check the backend.");
                         }
-                    }).catch(e => console.log("Server not running or error: ", e));
+                    }).catch(e => {
+                        console.log("Server not running or error: ", e);
+                        showModal("Network error. Could not reach Google Sheets.");
+                    });
                 } catch (error) {
                     console.error("Error connecting to local server", error);
                 }
             }
+        }
 
+        function printA4() {
+            // Set dynamic filename
+            const sNo = document.getElementById('s-no').value || 'Bill';
+            const name = document.getElementById('cust-name').value || 'Customer';
+            const date = document.getElementById('bill-date').value || new Date().toISOString().split('T')[0];
+
+            // Clean name (safe for filename)
+            const safeName = name.replace(/[^a-zA-Z0-9]/g, '_');
+
+            // Format date (YYYY-MM-DD → DD-MM-YYYY)
+            const parts = date.split('-');
+            const formattedDate = parts.length === 3 ? `${parts[2]}-${parts[1]}-${parts[0]}` : date;
+
+            // Set dynamic title (filename)
+            document.title = `Bill_${sNo}_${safeName}_${formattedDate}`;
             // Print the document securely via browser
             window.print();
 
-            // Generate next S No automatically for the next customer
-            const nextSNo = (parseInt(localStorage.getItem('ds_maxSNo')) || 1000) + 1;
-            if (sNoInput) sNoInput.value = nextSNo;
+            // Restore title
+            setTimeout(() => {
+                document.title = "Sri Rama Ganapathi Tours & Travels";
+            }, 1000);
+        }
+
+        // --- Calendar Logic ---
+        let currentMonthDate = new Date();
+        let currentCalendarBookings = [];
+
+        function openCalendar() {
+            document.getElementById('calendar-modal').classList.add('active');
+            renderCalendar();
+        }
+
+        function closeCalendar() {
+            document.getElementById('calendar-modal').classList.remove('active');
+        }
+
+        function changeMonth(delta) {
+            currentMonthDate.setMonth(currentMonthDate.getMonth() + delta);
+            renderCalendar();
+        }
+
+        async function fetchCalendarData() {
+            const carSelect = document.getElementById('calendar-car-select').value;
+            if (!carSelect) {
+                currentCalendarBookings = [];
+                renderCalendar();
+                return;
+            }
+
+            const title = document.getElementById('calendar-month-title');
+            const originalTitle = title.textContent;
+            title.textContent = "Fetching...";
+
+            try {
+                // Fetch all bookings for this car from Google Apps Script
+                const response = await fetch(`${SCRIPT_URL}?action=get_all_bookings&car=${encodeURIComponent(carSelect)}`);
+                if (response.ok) {
+                    const resData = await response.json();
+                    if (resData.status === 'success') {
+                        currentCalendarBookings = resData.data || [];
+                    }
+                }
+            } catch (err) {
+                console.error("Error fetching calendar data:", err);
+            }
+
+            title.textContent = originalTitle;
+            renderCalendar();
+        }
+
+        function renderCalendar() {
+            const title = document.getElementById('calendar-month-title');
+            const gridBody = document.getElementById('calendar-grid-body');
+
+            const monthNames = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+            const year = currentMonthDate.getFullYear();
+            const month = currentMonthDate.getMonth();
+
+            title.textContent = `${monthNames[month]} ${year}`;
+
+            // Empty grid securely
+            gridBody.innerHTML = '';
+
+            // Layout dimensions
+            const firstDay = new Date(year, month, 1).getDay();
+            const daysInMonth = new Date(year, month + 1, 0).getDate();
+            const today = new Date();
+
+            // Pad empty slots
+            for (let i = 0; i < firstDay; i++) {
+                const emptyDiv = document.createElement('div');
+                emptyDiv.className = 'calendar-day empty';
+                gridBody.appendChild(emptyDiv);
+            }
+
+            // Render actual days of the month
+            for (let i = 1; i <= daysInMonth; i++) {
+                // Ensure format YYYY-MM-DD to easily match bookings
+                const dayDateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(i).padStart(2, '0')}`;
+
+                const dayDiv = document.createElement('div');
+                dayDiv.className = 'calendar-day';
+
+                // Check for 'Today'
+                if (year === today.getFullYear() && month === today.getMonth() && i === today.getDate()) {
+                    dayDiv.classList.add('today');
+                }
+
+                const dateNum = document.createElement('div');
+                dateNum.className = 'date-num';
+                dateNum.textContent = i;
+                dayDiv.appendChild(dateNum);
+
+                // Overlay any bookings matching this day Date string
+                const todaysBookings = currentCalendarBookings.filter(b => {
+                    return dayDateStr >= b.from && dayDateStr <= b.to;
+                });
+
+                if (todaysBookings.length > 0) {
+                    dayDiv.classList.add('booked');
+                }
+
+                todaysBookings.forEach(b => {
+                    const badge = document.createElement('div');
+                    badge.className = 'booking-badge';
+                    // Example details hover text 'Sagar | 2026-03-24 to 2026-03-28'
+                    badge.title = `Booked by ${b.name} (${b.from} to ${b.to})`;
+                    badge.textContent = b.name;
+                    dayDiv.appendChild(badge);
+                });
+
+                gridBody.appendChild(dayDiv);
+            }
         }
     </script>
 </body>
