@@ -894,7 +894,7 @@
                 </svg>
                 Print A4
             </button>
-            <button class="print-btn" onclick="window.open('view_data.html', '_blank')">
+            <button class="print-btn" onclick="window.location.href = 'view_data.html'">
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
                     stroke-linecap="round" stroke-linejoin="round">
                     <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
@@ -1165,6 +1165,10 @@
 
         // Auto Increment Bill Number & Date logic
         window.onload = function () {
+            const urlParams = new URLSearchParams(window.location.search);
+            const loadSNo = urlParams.get('sNo');
+            const autoPrint = urlParams.get('print') === 'true';
+
             const billInput = document.getElementById('s-no');
             const dateInput = document.getElementById('bill-date');
 
@@ -1172,7 +1176,10 @@
                 dateInput.valueAsDate = new Date(); // automatically set today's date
             }
 
-            if (billInput) {
+            if (loadSNo) {
+                if (billInput) billInput.value = 'Loading...';
+                loadAutoBill(loadSNo, autoPrint);
+            } else if (billInput) {
                 billInput.value = 'Loading...';
                 fetch(`${SCRIPT_URL}?action=get_max_sno&t=${new Date().getTime()}`)
                     .then(r => r.json())
@@ -1183,19 +1190,61 @@
                             localStorage.setItem('ds_maxSNo', maxBill);
                         } else {
                             console.warn("Backend didn't return max_sno.");
-                            // showModal('Warning: Please deploy the latest Google Apps Script code as a NEW VERSION. It did not return the max S No.');
                             const maxBill = parseInt(localStorage.getItem('ds_maxSNo')) || 1000;
                             billInput.value = maxBill + 1;
                         }
                     })
                     .catch(err => {
                         console.error("Error fetching max S No:", err);
-                        // showModal('Network Error: Could not fetch S No from Google Sheets. Using local fallback.');
+                        const maxBill = parseInt(localStorage.getItem('ds_maxSNo')) || 1000;
                         billInput.value = maxBill + 1;
                     });
             }
-
         };
+
+        async function loadAutoBill(sNo, autoPrint) {
+            showModal(`Loading bill S No: ${sNo}...\nPlease wait.`, null, false);
+            try {
+                const response = await fetch(`${SCRIPT_URL}?action=get_bill&sNo=${sNo}`);
+                if (response.ok) {
+                    const data = await response.json();
+                    if (data.status === 'success' && data.data) {
+                        const bill = data.data;
+                        document.getElementById('s-no').value = bill.sNo || sNo;
+                        document.getElementById('cust-name').value = bill.name || '';
+                        document.getElementById('licence-no').value = bill.licenceNo || '';
+                        document.getElementById('aadhar-no').value = bill.aadharNo || '';
+                        document.getElementById('phone-no').value = bill.phoneNo || '+91 ';
+                        document.getElementById('booking-from').value = bill.bookingFrom || '';
+                        document.getElementById('booking-to').value = bill.bookingTo || '';
+                        document.getElementById('booked-car').value = bill.bookedCar || '';
+                        document.getElementById('start-km').value = bill.startKm || '';
+                        document.getElementById('end-km').value = bill.endKm || '';
+                        document.getElementById('total-km').value = bill.totalKm || '';
+                        document.getElementById('cng-points').value = bill.cngPoints || '';
+                        document.getElementById('petrol-points').value = bill.petrolPoints || '';
+                        document.getElementById('amount').value = bill.amount || '';
+                        document.getElementById('toll-fee').value = bill.tollFee || '';
+                        if (document.getElementById('late-fee')) document.getElementById('late-fee').value = bill.lateFee || '';
+                        document.getElementById('advance').value = bill.advance || '';
+                        if (document.getElementById('paid-amount')) document.getElementById('paid-amount').value = bill.paid || '';
+                        document.getElementById('balance').value = bill.balance || '';
+
+                        showModal(`Loaded Bill S No: ${sNo} successfully.`);
+                        if (autoPrint) {
+                            setTimeout(() => { printA4(); }, 500);
+                        }
+                    } else {
+                        showModal(`Bill S No: ${sNo} not found.`);
+                    }
+                } else {
+                    showModal(`Failed to load bill.`);
+                }
+            } catch (err) {
+                console.error("Error fetching bill: ", err);
+                showModal("Could not connect to the server to fetch the bill.");
+            }
+        }
 
         function openAlertsModal() {
             document.getElementById('alerts-modal').classList.add('active');

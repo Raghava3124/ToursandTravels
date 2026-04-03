@@ -113,6 +113,24 @@
             background: rgba(255, 255, 255, 0.2);
         }
 
+        .back-btn {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: white;
+            padding: 0.5rem 0.75rem;
+            border-radius: 8px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-weight: 600;
+            transition: all 0.2s;
+        }
+
+        .back-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+
         /* Main Content */
         main {
             flex: 1;
@@ -230,7 +248,16 @@
 <body>
 
     <header>
-        <h1>Sri Rama Ganapathi Tours & Travels</h1>
+        <div style="display: flex; align-items: center; gap: 15px;">
+            <button class="back-btn" onclick="window.location.href='index.html'">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <line x1="19" y1="12" x2="5" y2="12"></line>
+                    <polyline points="12 19 5 12 12 5"></polyline>
+                </svg>
+                Back
+            </button>
+            <h1>Sri Rama Ganapathi Tours & Travels</h1>
+        </div>
         <div class="header-controls">
             <div class="search-box">
                 <svg class="search-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -352,7 +379,7 @@
                 headHTML += `<th onclick="sortTable('${header}')">${header} 
                     <span style="font-size:10px; margin-left:4px; opacity:0.5;">▼</span></th>`;
             });
-            headHTML += '</tr>';
+            headHTML += '<th>ACTION</th></tr>';
             headContainer.innerHTML = headHTML;
 
             // Render Rows initially
@@ -398,9 +425,26 @@
 
                     bodyHTML += `<td>${cellVal}</td>`;
                 });
+                
+                const sNoVal = row['S No'] || row['sNo'] || row['S.No'] || ''; 
+                bodyHTML += `<td>
+                    <button onclick="downloadBill('${sNoVal}')" style="background:#dc2626; color:white; border:none; padding:6px 14px; border-radius:6px; font-weight:600; font-size:13px; cursor:pointer;" title="Download PDF">
+                        PDF
+                    </button>
+                    </td>`;
+                    
                 bodyHTML += '</tr>';
             });
             bodyContainer.innerHTML = bodyHTML;
+        }
+
+        function downloadBill(sNo) {
+            if(!sNo) {
+                alert("Cannot find S No for this bill.");
+                return;
+            }
+            // Open the main index with auto-print URL parameters
+            window.location.href = `index.html?sNo=${encodeURIComponent(sNo)}&print=true`;
         }
 
         function filterTable() {
