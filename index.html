@@ -913,14 +913,14 @@
                     <div class="form-row">
                         <label>BOOKING FROM :</label>
                         <input type="date" id="booking-from" onchange="checkAvailability()" />
-                        <input type="time" id="booking-from-time" onchange="checkAvailability()"
-                            style="width: 100px; margin-left: 5px; flex: none;" />
+                        <div class="time-picker" data-target="booking-from-time" style="display:inline-flex; align-items:center; gap:2px; margin-left:5px;"></div>
+                        <input type="hidden" id="booking-from-time" value="">
                     </div><br>
                     <div class="form-row">
                         <label>BOOKING TO :</label>
                         <input type="date" id="booking-to" onchange="checkAvailability()" />
-                        <input type="time" id="booking-to-time" onchange="checkAvailability()"
-                            style="width: 100px; margin-left: 5px; flex: none;" />
+                        <div class="time-picker" data-target="booking-to-time" style="display:inline-flex; align-items:center; gap:2px; margin-left:5px;"></div>
+                        <input type="hidden" id="booking-to-time" value="">
                         <span id="availability-status" style="margin-left: 10px; font-weight: bold; flex: none;"></span>
                     </div>
                 </div>
@@ -1152,9 +1152,9 @@
                         document.getElementById('aadhar-no').value = bill.aadharNo || '';
                         document.getElementById('phone-no').value = bill.phoneNo || '+91 ';
                         document.getElementById('booking-from').value = bill.bookingFrom || '';
-                        if (document.getElementById('booking-from-time')) document.getElementById('booking-from-time').value = bill.bookingFromTime || '';
+                        if (document.getElementById('booking-from-time')) setTimePickerValue('booking-from-time', bill.bookingFromTime || '');
                         document.getElementById('booking-to').value = bill.bookingTo || '';
-                        if (document.getElementById('booking-to-time')) document.getElementById('booking-to-time').value = bill.bookingToTime || '';
+                        if (document.getElementById('booking-to-time')) setTimePickerValue('booking-to-time', bill.bookingToTime || '');
                         document.getElementById('booked-car').value = bill.bookedCar || '';
                         document.getElementById('start-km').value = bill.startKm || '';
                         document.getElementById('end-km').value = bill.endKm || '';
@@ -1224,7 +1224,7 @@
                                     </div>
                                 </div>
                                 <div style="font-size: 20px; font-weight: 800; color: #b91c1c;">
-                                    ₹${alert.balance}
+                                    â‚¹${alert.balance}
                                 </div>
                             `;
                             listContainer.appendChild(item);
@@ -1352,7 +1352,20 @@
             }
             const actualTo = document.getElementById('booking-to').value;
             const timeFrom = document.getElementById('booking-from-time') ? document.getElementById('booking-from-time').value : '';
-            const actualToTime = document.getElementById('booking-to-time') ? document.getElementById('booking-to-time').value : '';
+            let actualToTime = document.getElementById('booking-to-time') ? document.getElementById('booking-to-time').value : '';
+            // Chronological time validation
+            if (dateFrom === actualTo && timeFrom && actualToTime) {
+                if (timeFrom > actualToTime) {
+                    showModal('The end time cannot be before the start time on the same day.');
+                    setTimePickerValue('booking-to-time', '');
+                    if (typeof setTimePickerValue === 'function') {
+                        setTimePickerValue('booking-to-time', '');
+                    }
+                    actualToTime = '';
+                    return;
+                }
+            }
+
 
             try {
                 const response = await fetch(`${SCRIPT_URL}?action=check_bookings&from=${dateFrom}&to=${actualTo}&timeFrom=${timeFrom}&timeTo=${actualToTime}&t=${new Date().getTime()}`);
@@ -1369,8 +1382,14 @@
                             const toD = b.to.split('-');
 
                             // Format to DD/MM (drop the year) for space efficiency. Handle time appended.
-                            const fFrom = fromD.length === 3 ? `${fromD[2].substring(0, 2)}/${fromD[1]}` : b.from;
-                            const fTo = toD.length === 3 ? `${toD[2].substring(0, 2)}/${toD[1]}` : b.to;
+                            const parseDateStr = (dateArr, orig) => {
+                                if (dateArr.length !== 3) return orig;
+                                const dayTime = dateArr[2].split(' ');
+                                const timeStr = dayTime.slice(1).join(' ');
+                                return `${dayTime[0]}/${dateArr[1]}` + (timeStr ? ` ${timeStr}` : '');
+                            };
+                            const fFrom = parseDateStr(fromD, b.from);
+                            const fTo = parseDateStr(toD, b.to);
 
                             // Truncate name if it's unexpectedly long
                             const nameStr = b.name ? String(b.name) : "Unknown";
@@ -1434,9 +1453,9 @@
                             document.getElementById('aadhar-no').value = bill.aadharNo || '';
                             document.getElementById('phone-no').value = bill.phoneNo || '+91 ';
                             document.getElementById('booking-from').value = bill.bookingFrom || '';
-                            if (document.getElementById('booking-from-time')) document.getElementById('booking-from-time').value = bill.bookingFromTime || '';
+                            if (document.getElementById('booking-from-time')) setTimePickerValue('booking-from-time', bill.bookingFromTime || '');
                             document.getElementById('booking-to').value = bill.bookingTo || '';
-                            if (document.getElementById('booking-to-time')) document.getElementById('booking-to-time').value = bill.bookingToTime || '';
+                            if (document.getElementById('booking-to-time')) setTimePickerValue('booking-to-time', bill.bookingToTime || '');
                             document.getElementById('booked-car').value = bill.bookedCar || '';
                             document.getElementById('start-km').value = bill.startKm || '';
                             document.getElementById('end-km').value = bill.endKm || '';
@@ -1634,7 +1653,7 @@
             // Clean name (safe for filename)
             const safeName = name.replace(/[^a-zA-Z0-9]/g, '_');
 
-            // Format date (YYYY-MM-DD → DD-MM-YYYY)
+            // Format date (YYYY-MM-DD â†’ DD-MM-YYYY)
             const parts = date.split('-');
             const formattedDate = parts.length === 3 ? `${parts[2]}-${parts[1]}-${parts[0]}` : date;
 
@@ -2124,6 +2143,88 @@
                 if (inp) inp.focus();
             }, 100);
         }
+
+        function initTimePickers() {
+            document.querySelectorAll('.time-picker').forEach(container => {
+                const targetId = container.getAttribute('data-target');
+                
+                let hhOpts = '<option value="">HH</option>';
+                for(let i=1; i<=12; i++) {
+                    let v = i.toString().padStart(2, '0');
+                    hhOpts += `<option value="${v}">${v}</option>`;
+                }
+                
+                let mmOpts = '<option value="">MM</option>';
+                for(let i=0; i<60; i++) {
+                    let v = i.toString().padStart(2, '0');
+                    mmOpts += `<option value="${v}">${v}</option>`;
+                }
+                
+                const selectStyle = "padding:6px 20px 6px 10px; border-radius:6px; border:1px solid #ccc; font-size:14px; outline:none; background-color:#fff; color:#333; cursor:pointer; appearance:none; -webkit-appearance:none; background-image:url('data:image/svg+xml;utf8,<svg xmlns=\'http://www.w3.org/2000/svg\' width=\'10\' height=\710\' fill=\'%23666\' viewBox=\'0 0 16 16\'><path d=\'M7.247 11.14 2.451 5.658C1.885 5.013 2.345 4 3.204 4h9.592a1 1 0 0 1 .753 1.659l-4.796 5.48a1 1 0 0 1-1.506 0z\'/></svg>'); background-repeat:no-repeat; background-position:right 6px center;";
+                container.innerHTML = `
+                    <select id="${targetId}-hh" onchange="updateTimeHidden('${targetId}')" style="${selectStyle}">${hhOpts}</select>
+                    <span style="font-weight:bold; color:#666; margin: 0 2px;">:</span>
+                    <select id="${targetId}-mm" onchange="updateTimeHidden('${targetId}')" style="${selectStyle}">${mmOpts}</select>
+                    <select id="${targetId}-ampm" onchange="updateTimeHidden('${targetId}')" style="${selectStyle} margin-left:2px;">
+                        <option value="AM">AM</option>
+                        <option value="PM">PM</option>
+                    </select>
+                `;
+            });
+        }
+
+        function updateTimeHidden(targetId) {
+            const hh = document.getElementById(targetId + '-hh').value;
+            const mm = document.getElementById(targetId + '-mm').value;
+            const ampm = document.getElementById(targetId + '-ampm').value;
+            const hidden = document.getElementById(targetId);
+            
+            if(hh && mm) {
+                let hour = parseInt(hh, 10);
+                if(ampm === 'PM' && hour < 12) hour += 12;
+                if(ampm === 'AM' && hour === 12) hour = 0;
+                hidden.value = hour.toString().padStart(2, '0') + ':' + mm;
+            } else {
+                hidden.value = '';
+            }
+            
+            checkAvailability();
+        }
+
+        function setTimePickerValue(targetId, time24) {
+            const hidden = document.getElementById(targetId);
+            if(hidden) hidden.value = time24 || '';
+            
+            const hhSel = document.getElementById(targetId + '-hh');
+            const mmSel = document.getElementById(targetId + '-mm');
+            const ampmSel = document.getElementById(targetId + '-ampm');
+            
+            if(!hhSel || !mmSel || !ampmSel) return;
+
+            if(!time24) {
+                hhSel.value = '';
+                mmSel.value = '';
+                ampmSel.value = 'AM';
+                return;
+            }
+            
+            const parts = time24.split(':');
+            if(parts.length >= 2) {
+                let hour = parseInt(parts[0], 10);
+                const mm = parts[1];
+                let ampm = hour >= 12 ? 'PM' : 'AM';
+                
+                hour = hour % 12;
+                if(hour === 0) hour = 12;
+                
+                hhSel.value = hour.toString().padStart(2, '0');
+                mmSel.value = mm;
+                ampmSel.value = ampm;
+            }
+        }
+        
+        initTimePickers();
+
     </script>
 </body>
 
