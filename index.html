@@ -1355,6 +1355,7 @@
             const actualTo = document.getElementById('booking-to').value;
             const timeFrom = document.getElementById('booking-from-time') ? document.getElementById('booking-from-time').value : '';
             let actualToTime = document.getElementById('booking-to-time') ? document.getElementById('booking-to-time').value : '';
+            const currentSNo = document.getElementById('s-no') ? document.getElementById('s-no').value : '';
             // Chronological time validation
             if (dateFrom === actualTo && timeFrom && actualToTime) {
                 if (timeFrom > actualToTime) {
@@ -1370,7 +1371,7 @@
 
 
             try {
-                const response = await fetch(`${SCRIPT_URL}?action=check_bookings&from=${dateFrom}&to=${actualTo}&timeFrom=${timeFrom}&timeTo=${actualToTime}&t=${new Date().getTime()}`);
+                const response = await fetch(`${SCRIPT_URL}?action=check_bookings&from=${dateFrom}&to=${actualTo}&timeFrom=${timeFrom}&timeTo=${actualToTime}&excludeSNo=${currentSNo}&t=${new Date().getTime()}`);
                 if (response.ok) {
                     const data = await response.json();
                     const bookedCars = data.booked_cars || {};
